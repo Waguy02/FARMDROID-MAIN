@@ -80,9 +80,56 @@ function consultStandard(rules) {
 
 
 function estimateWater(rules, mesures) {
+    var session=pl.create();
+    /*la regle que j'ai ajouté vient du fait que si on met une certaine
+     quantité d'eau par jour et qu'on connait quelle sont les pertes occasionnées, 
+     on demandera l'apport de cette quantité ajouté des pertes succeptibles d'etre engendrées
+      (qui sont les memes potentiellement) et soustrait de la mesure faite 
+      on va d'abord determiner une premieere valeur grace a prolog avant la soustraire aux mesures apres  
+    */
+    var array=[rules.get("W_ESTIMATION"),rules.get("K_ESTIMATION"),rules.get("P_ESTIMATION"),rules.get("N_ESTIMATION"),"W_need(X+Y):- eau_jour(X),dimunition_eau(Y)"];
+    var parsed=session.consult(array); 
+    var eau_jour=session.Query("?- eau_jour(X)")
+    var besoin_eau=eau_jour;
+    var tmp=true;
+    var callback1 = function( answer ) { 
+        
+        var test= pl.format_answer( answer ).split("=") ;// car le resultat est une egalité genre X=0.9 par exemple 
+        eau_jour=test[test.lenght-1]
+    };
+    session.answer( callback1 ); // eau_jour aurra pris la valeur souhaitée
+    
+    
+    var result=session.Query("?- W_need(X)")
+
+    var callback = function( answer ) { 
+        tmp=pl.format_answer( answer );
+
+        if (tmp!=false) {
+// car on peut ne peut avoir de resultat directement car la plante peut ne pas avoir besoin d'eau
+            var test=tmp.split("=");
+            besoin_eau=besoin_eau+test[test.lenght-1]-eau_jour ; 
+        }
+       
+    };
+    while (tmp!=false) {
+        session.answer( callback ); // on additionne les besoins
+    }
+    
+    
+//il me faurt savoir comment recuperer la quantité d'eau journaliere et aussi la mesure d'eau enregistrée 
+    var prediction=besoin_eau-mesures;
 
 
+ if (prediction>=0)
+ {
+    return prediction;
+ }
 
+else {
+return "Rien pour le moment";
+}
+   
 }
 
 

@@ -1,0 +1,1 @@
+dimunition_k(0.3):-augmentation_eau(50).
