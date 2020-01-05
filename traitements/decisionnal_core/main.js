@@ -87,7 +87,7 @@ function estimateWater(rules, mesures) {
       (qui sont les memes potentiellement) et soustrait de la mesure faite 
       on va d'abord determiner une premieere valeur grace a prolog avant la soustraire aux mesures apres  
     */
-    var array=[rules.get("W_ESTIMATION"),rules.get("K_ESTIMATION"),rules.get("P_ESTIMATION"),rules.get("N_ESTIMATION"),"W_need(X+Y):- eau_jour(X),dimunition_eau(Y)"];
+    var array=[rules.get("W_ESTIMATION"),rules.get("STANDARD"),rules.get("K_ESTIMATION"),rules.get("P_ESTIMATION"),rules.get("N_ESTIMATION"),"W_need(X+Y):- eau_jour(X),dimunition_eau(Y)"];
     var parsed=session.consult(array); 
     var eau_jour=session.Query("?- eau_jour(X)")
     var besoin_eau=eau_jour;
