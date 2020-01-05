@@ -3,7 +3,7 @@
 const fs = require('fs');
 var pl = require("tau-prolog");
 const NORMAL_MAIZE = "mais_normal"
-const Mesure = require('../../API REST/models/Mesure');
+//const Mesure = require('../../API REST/models/Mesure');
 
 
 
@@ -89,7 +89,7 @@ function estimateWater(rules, mesures) {
     */
     var array=[rules.get("W_ESTIMATION"),rules.get("STANDARD"),rules.get("K_ESTIMATION"),rules.get("P_ESTIMATION"),rules.get("N_ESTIMATION"),"W_need(X+Y):- eau_jour(X),dimunition_eau(Y)"];
     var parsed=session.consult(array); 
-    var eau_jour=session.Query("?- eau_jour(X)")
+    var eau_jour=session.query("?- eau_jour(X).")
     var besoin_eau=eau_jour;
     var tmp=true;
     var callback1 = function( answer ) { 
@@ -100,7 +100,7 @@ function estimateWater(rules, mesures) {
     session.answer( callback1 ); // eau_jour aurra pris la valeur souhaitée
     
     
-    var result=session.Query("?- W_need(X)")
+    var result=session.query("?- W_need(X).")
 
     var callback = function( answer ) { 
         tmp=pl.format_answer( answer );
@@ -158,3 +158,13 @@ function estimateP_Need(rules, mesures) {
 
 
 estimate(NORMAL_MAIZE,null);
+
+
+var mesures=0.2;
+
+var espece="mais_normal";
+var rules=loadRules(espece);
+
+var resul=estimateWater(rules,escape);
+
+console.log(resul)
