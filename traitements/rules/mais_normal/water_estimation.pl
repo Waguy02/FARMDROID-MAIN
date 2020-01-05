@@ -1,4 +1,4 @@
-luminosite(400,600).
+luminosite(600,1000).
 eau_jour(0.32).
 dimunition_eau(0.1):- luminosite(600,1000).
 dimunition_eau(0.2):- temperature_sol(40,60).
