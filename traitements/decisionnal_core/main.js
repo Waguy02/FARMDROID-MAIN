@@ -173,7 +173,7 @@ var mesures=0.5;
 
 var espece="mais_normal";
 var rules=loadRules(espece);
-console.log(Mesure.eau)
+//console.log(Mesure.eau)
 var resul=estimateWater(rules,Mesure.eau);
 
 

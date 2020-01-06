@@ -107,7 +107,7 @@ function estimateWater(rules, mesures) {
 
     var callback = function( answer ) { 
         tampon=pl.format_answer( answer );
-       // console.log(tmp)
+       // console.log(tampon)
         if (tampon!="false.") {
 // car on peut ne peut avoir de resultat directement car la plante peut ne pas avoir besoin d'eau
             var test=tampon.split("=");
