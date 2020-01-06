@@ -3,7 +3,8 @@
 const fs = require('fs');
 var pl = require("tau-prolog");
 const NORMAL_MAIZE = "mais_normal"
-//const Mesure = require('../../API REST/models/Mesure');
+
+const Mesure = require('./Mesures');
 
 
 
@@ -87,39 +88,47 @@ function estimateWater(rules, mesures) {
       (qui sont les memes potentiellement) et soustrait de la mesure faite 
       on va d'abord determiner une premieere valeur grace a prolog avant la soustraire aux mesures apres  
     */
-    var array=[rules.get("W_ESTIMATION"),rules.get("STANDARD"),rules.get("K_ESTIMATION"),rules.get("P_ESTIMATION"),rules.get("N_ESTIMATION"),"W_need(X+Y):- eau_jour(X),dimunition_eau(Y)"];
-    var parsed=session.consult(array); 
-    var eau_jour=session.query("?- eau_jour(X).")
-    var besoin_eau=eau_jour;
-    var tmp=true;
+    var array=[rules.get(W_ESTIMATION),rules.get(STANDARD),rules.get(K_ESTIMATION),rules.get(P_ESTIMATION),rules.get(N_ESTIMATION)];
+    var parsed=session.consult(array.join("\n")); 
+    var eau=session.query("eau_jour(X).")
+    var eau_jour=0;
+    var tampon;
     var callback1 = function( answer ) { 
-        
+        //console.log(pl.format_answer( answer ))
         var test= pl.format_answer( answer ).split("=") ;// car le resultat est une egalité genre X=0.9 par exemple 
-        eau_jour=test[test.lenght-1]
+        eau_jour=parseFloat(test[1])
+       // console.log(eau_jour)
+        
     };
     session.answer( callback1 ); // eau_jour aurra pris la valeur souhaitée
-    
-    
-    var result=session.query("?- W_need(X).")
+   //console.log(eau_jour)
+    var besoin_eau=eau_jour;
+    var result=session.query(" dimunition_eau(X).")
 
     var callback = function( answer ) { 
-        tmp=pl.format_answer( answer );
-
-        if (tmp!=false) {
+        tampon=pl.format_answer( answer );
+       // console.log(tmp)
+        if (tampon!="false.") {
 // car on peut ne peut avoir de resultat directement car la plante peut ne pas avoir besoin d'eau
-            var test=tmp.split("=");
-            besoin_eau=besoin_eau+test[test.lenght-1]-eau_jour ; 
+            var test=tampon.split("=");
+            //console.log(tampon)
+            besoin_eau=besoin_eau+parseFloat(test[1]) ; 
+           // console.log(besoin_eau)
         }
+        
+        
        
     };
-    while (tmp!=false) {
+    while (tampon!="false.") {
         session.answer( callback ); // on additionne les besoins
     }
     
     
 //il me faurt savoir comment recuperer la quantité d'eau journaliere et aussi la mesure d'eau enregistrée 
-    var prediction=besoin_eau-mesures;
+    
 
+var prediction=besoin_eau-mesures;
+//console.log(prediction)
 
  if (prediction>=0)
  {
@@ -127,7 +136,7 @@ function estimateWater(rules, mesures) {
  }
 
 else {
-return "Rien pour le moment";
+return "Rien à ajouter  pour le moment";
 }
    
 }
@@ -160,11 +169,12 @@ function estimateP_Need(rules, mesures) {
 estimate(NORMAL_MAIZE,null);
 
 
-var mesures=0.2;
+var mesures=0.5;
 
 var espece="mais_normal";
 var rules=loadRules(espece);
+console.log(Mesure.eau)
+var resul=estimateWater(rules,Mesure.eau);
 
-var resul=estimateWater(rules,escape);
 
-console.log(resul)
+console.log("l'apport d'eau a faire est de:" + resul)
