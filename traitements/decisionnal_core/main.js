@@ -127,7 +127,7 @@ function estimateWater(rules, mesures) {
 //il me faurt savoir comment recuperer la quantité d'eau journaliere et aussi la mesure d'eau enregistrée 
     
 
-var prediction=besoin_eau-mesures;
+var prediction=besoin_eau-mesures.eau;
 //console.log(prediction)
 
  if (prediction>=0)
@@ -174,7 +174,7 @@ var mesures=0.5;
 var espece="mais_normal";
 var rules=loadRules(espece);
 //console.log(Mesure.eau)
-var resul=estimateWater(rules,Mesure.eau);
+var resul=estimateWater(rules,Mesure);
 
 
 console.log("l'apport d'eau a faire est de:" + resul)
