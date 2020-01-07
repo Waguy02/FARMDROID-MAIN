@@ -88,7 +88,18 @@ function estimateWater(rules, mesures) {
       (qui sont les memes potentiellement) et soustrait de la mesure faite 
       on va d'abord determiner une premieere valeur grace a prolog avant la soustraire aux mesures apres  
     */
-    var array=[rules.get(W_ESTIMATION),rules.get(STANDARD),rules.get(K_ESTIMATION),rules.get(P_ESTIMATION),rules.get(N_ESTIMATION)];
+
+   var luminosite=mesures.luminosite
+   var luminositesup=luminosite+10
+   var temperature_air=mesures.temperature_air
+   var temperature_airsup=temperature_air+10
+   var temperature_sol=mesures.temperature_sol
+   var temperature_solsup=temperature_sol+10
+   var lux="luminosite("+luminosite+","+luminositesup+")."+"\n"
+   var temp_air= "temperature_air("+temperature_air+","+temperature_airsup+")."+"\n"
+   var temp_sol= "temperature_sol("+temperature_sol+","+temperature_solsup+")."+"\n"
+   var array=[lux,temp_air,temp_sol,rules.get(W_ESTIMATION),rules.get(STANDARD),rules.get(K_ESTIMATION),rules.get(P_ESTIMATION),rules.get(N_ESTIMATION)];
+    console.log(array)
     var parsed=session.consult(array.join("\n")); 
     var eau=session.query("eau_jour(X).")
     var eau_jour=0;
@@ -175,6 +186,9 @@ var espece="mais_normal";
 var rules=loadRules(espece);
 //console.log(Mesure.eau)
 var resul=estimateWater(rules,Mesure);
-
+var luminosite=Mesure.luminosite
+var luminositesup=luminosite+10
 
 console.log("l'apport d'eau a faire est de:" + resul)
+var valeur="luminosite("+luminosite+","+luminositesup+")"
+//console.log(valeur)

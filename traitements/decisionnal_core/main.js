@@ -178,3 +178,6 @@ var resul=estimateWater(rules,Mesure);
 
 
 console.log("l'apport d'eau a faire est de:" + resul)
+
+var valeur="luminosite("+Mesure.luminosite+","+(Mesure.luminosite-10)+")"
+console.log(valeur)
