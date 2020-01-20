@@ -12,8 +12,8 @@ n_jour(0.12).
 p_jour(0.12).
 
 %npk
-en decigrammes
-
+en centigrammes
+%en decilitre
 
 
 
