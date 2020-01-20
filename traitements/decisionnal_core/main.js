@@ -30,7 +30,7 @@ const K_ESTIMATION = "k_estimation";
 function estimate(specie, mesures) {
 
     rules=loadRules(specie);
-    console.log(rules);
+    //console.log(rules);
     var session = pl.create(1000);
     
     session.consult(rules.get(STANDARD));
@@ -119,11 +119,11 @@ function estimateWater(rules, mesures) {
 
     var callback = function( answer ) { 
         tampon=pl.format_answer( answer );
-       // console.log(tmp)
+        
         if (tampon!="false.") {
 // car on peut ne peut avoir de resultat directement car la plante peut ne pas avoir besoin d'eau
             var test=tampon.split("=");
-            //console.log(tampon)
+           // console.log(tampon)
             besoin_eau=besoin_eau+parseFloat(test[1]) ; 
            // console.log(besoin_eau)
         }
@@ -155,17 +155,224 @@ return "Rien à ajouter  pour le moment";
 
 
 function estimateN_Need(rules, mesures) {
+    var session=pl.create();
+    /*la regle que j'ai ajouté vient du fait que si on met une certaine
+     quantité d'eau par jour et qu'on connait quelle sont les pertes occasionnées, 
+     on demandera l'apport de cette quantité ajouté des pertes succeptibles d'etre engendrées
+      (qui sont les memes potentiellement) et soustrait de la mesure faite 
+      on va d'abord determiner une premieere valeur grace a prolog avant la soustraire aux mesures apres  
+    */
 
+   var luminosite=mesures.luminosite
+   var luminositesup=luminosite+10
+   var temperature_air=mesures.temperature_air
+   var temperature_airsup=temperature_air+10
+   var temperature_sol=mesures.temperature_sol
+   var temperature_solsup=temperature_sol+10
+   var lux="luminosite("+luminosite+","+luminositesup+")."+"\n"
+   var eau="eau_actuel("+mesures.eau+")."+"\n"
+   var temp_air= "temperature_air("+temperature_air+","+temperature_airsup+")."+"\n"
+   var temp_sol= "temperature_sol("+temperature_sol+","+temperature_solsup+")."+"\n"
+
+   var array=[rules.get(N_ESTIMATION),lux,eau,temp_air,temp_sol,];
+   // console.log(array)
+    var parsed=session.consult(array.join('\n')); 
+    var eau=session.query("n_jour(X).")
+    var n_jour=0;
+    var tampon;
+    var callback1 = function( answer ) { 
+        //console.log(pl.format_answer( answer ))
+        var test= pl.format_answer( answer ).split("=") ;// car le resultat est une egalité genre X=0.9 par exemple 
+        n_jour=parseFloat(test[1])
+       // console.log(eau_jour)
+        
+    };
+    session.answer( callback1 ); // eau_jour aurra pris la valeur souhaitée
+   //console.log(eau_jour)
+    var besoin_n=n_jour;
+    var result=session.query(" dimunition_n(X).")
+
+    var callback = function( answer ) { 
+        tampon=pl.format_answer( answer );
+        
+        if (tampon!="false.") {
+// car on peut ne peut avoir de resultat directement car la plante peut ne pas avoir besoin d'eau
+            var test=tampon.split("=");
+           // console.log(tampon)
+            besoin_n=besoin_n+parseFloat(test[1]) ; 
+           // console.log(besoin_eau)
+        }
+        
+        
+       
+    };
+    while (tampon!="false.") {
+        session.answer( callback ); // on additionne les besoins
+    }
+    
+    
+//il me faurt savoir comment recuperer la quantité d'eau journaliere et aussi la mesure d'eau enregistrée 
+    
+
+var prediction=besoin_n-mesures.azote;
+//console.log(prediction)
+
+ if (prediction>=0)
+ {
+    return prediction;
+ }
+
+else {
+return "Rien à ajouter  pour le moment";
+}
 }
 
 function estimateK_Need(rules, mesures) {
+    var session=pl.create();
+    /*la regle que j'ai ajouté vient du fait que si on met une certaine
+     quantité d'eau par jour et qu'on connait quelle sont les pertes occasionnées, 
+     on demandera l'apport de cette quantité ajouté des pertes succeptibles d'etre engendrées
+      (qui sont les memes potentiellement) et soustrait de la mesure faite 
+      on va d'abord determiner une premieere valeur grace a prolog avant la soustraire aux mesures apres  
+    */
 
+   var luminosite=mesures.luminosite
+   var luminositesup=luminosite+10
+   var temperature_air=mesures.temperature_air
+   var temperature_airsup=temperature_air+10
+   var temperature_sol=mesures.temperature_sol
+   var temperature_solsup=temperature_sol+10
+   var lux="luminosite("+luminosite+","+luminositesup+")."+"\n"
+   var eau="eau_actuel("+mesures.eau+")."+"\n"
+   var temp_air= "temperature_air("+temperature_air+","+temperature_airsup+")."+"\n"
+   var temp_sol= "temperature_sol("+temperature_sol+","+temperature_solsup+")."+"\n"
+
+   var array=[rules.get(K_ESTIMATION),lux,eau,temp_air,temp_sol,];
+   // console.log(array)
+    var parsed=session.consult(array.join('\n')); 
+    var eau=session.query("k_jour(X).")
+    var k_jour=0;
+    var tampon;
+    var callback1 = function( answer ) { 
+        //console.log(pl.format_answer( answer ))
+        var test= pl.format_answer( answer ).split("=") ;// car le resultat est une egalité genre X=0.9 par exemple 
+        k_jour=parseFloat(test[1])
+       // console.log(eau_jour)
+        
+    };
+    session.answer( callback1 ); // eau_jour aurra pris la valeur souhaitée
+   //console.log(eau_jour)
+    var besoin_k=k_jour;
+    var result=session.query(" dimunition_k(X).")
+
+    var callback = function( answer ) { 
+        tampon=pl.format_answer( answer );
+        
+        if (tampon!="false.") {
+// car on peut ne peut avoir de resultat directement car la plante peut ne pas avoir besoin d'eau
+            var test=tampon.split("=");
+           // console.log(tampon)
+            besoin_k=besoin_k+parseFloat(test[1]) ; 
+           // console.log(besoin_eau)
+        }
+        
+        
+       
+    };
+    while (tampon!="false.") {
+        session.answer( callback ); // on additionne les besoins
+    }
+    
+    
+//il me faurt savoir comment recuperer la quantité d'eau journaliere et aussi la mesure d'eau enregistrée 
+    
+
+var prediction=besoin_k-mesures.potassium;
+//console.log(prediction)
+
+ if (prediction>=0)
+ {
+    return prediction;
+ }
+
+else {
+return "Rien à ajouter  pour le moment";
+}
 
 }
 
 
 function estimateP_Need(rules, mesures) {
+    var session=pl.create();
+    /*la regle que j'ai ajouté vient du fait que si on met une certaine
+     quantité d'eau par jour et qu'on connait quelle sont les pertes occasionnées, 
+     on demandera l'apport de cette quantité ajouté des pertes succeptibles d'etre engendrées
+      (qui sont les memes potentiellement) et soustrait de la mesure faite 
+      on va d'abord determiner une premieere valeur grace a prolog avant la soustraire aux mesures apres  
+    */
 
+   var luminosite=mesures.luminosite
+   var luminositesup=luminosite+10
+   var temperature_air=mesures.temperature_air
+   var temperature_airsup=temperature_air+10
+   var temperature_sol=mesures.temperature_sol
+   var temperature_solsup=temperature_sol+10
+   var lux="luminosite("+luminosite+","+luminositesup+")."+"\n"
+   var eau="eau_actuel("+mesures.eau+")."+"\n"
+   var temp_air= "temperature_air("+temperature_air+","+temperature_airsup+")."+"\n"
+   var temp_sol= "temperature_sol("+temperature_sol+","+temperature_solsup+")."+"\n"
+
+   var array=[rules.get(P_ESTIMATION),lux,eau,temp_air,temp_sol,];
+   // console.log(array)
+    var parsed=session.consult(array.join('\n')); 
+    var eau=session.query("p_jour(X).")
+    var p_jour=0;
+    var tampon;
+    var callback1 = function( answer ) { 
+       // console.log(pl.format_answer( answer ))
+        var test= pl.format_answer( answer ).split("=") ;// car le resultat est une egalité genre X=0.9 par exemple 
+        p_jour=parseFloat(test[1])
+       // console.log(eau_jour)
+        
+    };
+    session.answer( callback1 ); // eau_jour aurra pris la valeur souhaitée
+   //console.log(eau_jour)
+    var besoin_p=p_jour;
+    var result=session.query(" dimunition_p(X).")
+
+    var callback = function( answer ) { 
+        tampon=pl.format_answer( answer );
+        
+        if (tampon!="false.") {
+// car on peut ne peut avoir de resultat directement car la plante peut ne pas avoir besoin d'eau
+            var test=tampon.split("=");
+           // console.log(tampon)
+            besoin_p=besoin_p+parseFloat(test[1]) ; 
+           // console.log(besoin_eau)
+        }
+        
+        
+       
+    };
+    while (tampon!="false.") {
+        session.answer( callback ); // on additionne les besoins
+    }
+    
+    
+//il me faurt savoir comment recuperer la quantité d'eau journaliere et aussi la mesure d'eau enregistrée 
+    
+
+var prediction=besoin_p-mesures.phosphore;
+//console.log(prediction)
+
+ if (prediction>=0)
+ {
+    return prediction;
+ }
+
+else {
+return "Rien à ajouter  pour le moment";
+}
 
 }
 
@@ -186,7 +393,14 @@ var mesures=0.5;
 var espece="mais_normal";
 var rules=loadRules(espece);
 //console.log(Mesure.eau)
-var resul=estimateWater(rules,Mesure);
+var eau=estimateWater(rules,Mesure);
+var azote=estimateN_Need(rules,Mesure);
+var potassium=estimateK_Need(rules,Mesure);
+var phosphore=estimateP_Need(rules,Mesure);
 
 
-console.log("l'apport d'eau a faire est de:" + resul)
+
+console.log("l'apport d'eau:" + eau)
+console.log("l'apport d'Azote:" + azote)
+console.log("l'apport de potassium:" +potassium)
+console.log("l'apport de phosphore:" +phosphore)
